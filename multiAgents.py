@@ -82,7 +82,11 @@ class ReflexAgent(Agent):
             closestfood = min(newpos2food_distances)  # khoảng cách manhattan tới thức ăn gần nhất
         else:
             closestfood = 0
-        return (15 / (closestfood + 1)) + (80 / (len(foodList) + 1)) + (-20 / (closestghost + 1)) + scoreDiff
+        score = (15 / (closestfood + 1)) + (80 / (len(foodList) + 1)) + scoreDiff
+        # có sợ ma gần nhất hay không
+        if newScaredTimes[newpos2ghost_distances.index(closestghost)] <= 0:
+            score += (-20 / (closestghost + 1))  # giảm điểm khi càng gần với ma gần nhất
+        return score
 
 
 def scoreEvaluationFunction(currentGameState):
@@ -165,7 +169,7 @@ def minimax_search(self, gameState, agentIndex, depth):
         next_gameState = gameState.generateSuccessor(agentIndex, move)
         if agentIndex == 0:  # max agent
             next_move, next_score = minimax_search(self, next_gameState, agentIndex + 1, depth)
-            if next_score > score: # chọn hướng đi cho điểm cao hơn cho max agent
+            if next_score > score:  # chọn hướng đi cho điểm cao hơn cho max agent
                 score = next_score
                 bestMove = move
         else:
@@ -176,7 +180,7 @@ def minimax_search(self, gameState, agentIndex, depth):
                 next_agent = agentIndex + 1
                 depth_next = depth
             next_move, next_score = minimax_search(self, next_gameState, next_agent, depth_next)
-            if next_score < score: # chọn hướng đi có điểm thấp hơn cho min agent
+            if next_score < score:  # chọn hướng đi có điểm thấp hơn cho min agent
                 score = next_score
                 bestMove = move
     return bestMove, score
@@ -231,6 +235,7 @@ def alpha_beta(self, gameState, agentIndex, depth, alpha, beta):
                 return bestMove, score
     return bestMove, score
 
+
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
       Your expectimax agent (question 4)
@@ -246,6 +251,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         "*** YOUR CODE HERE ***"
         bestAction, score = expectimax_search(self, gameState, 0, 0)
         return bestAction
+
 
 def expectimax_search(self, gameState, agentIndex, depth):
     bestMove = None
@@ -274,6 +280,7 @@ def expectimax_search(self, gameState, agentIndex, depth):
             next_move, next_score = expectimax_search(self, next_gameState, next_agent, depth_next)
             score = score + (1 / float(len(moves))) * next_score
     return bestMove, score
+
 
 def betterEvaluationFunction(currentGameState):
     """
